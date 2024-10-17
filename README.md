@@ -2,7 +2,7 @@
 
 Convert a video to an ASCII art video
 
-NOTE: FFmpeg is needed to extract the frames from a video and to convert ASCII images to a video
+**NOTE**: **FFmpeg** is needed to extract the frames from a video and to convert ASCII images to a video
 
 ## Example
 
