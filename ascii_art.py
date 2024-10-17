@@ -77,10 +77,8 @@ class AsciiArtist:
 
         # Generates the indices for the symbols based on the grayscale.
         gray = np.array(im_gray)
-        symbols = list('-vS$&NM')
-        symbol_indices = (
-            (gray - gray.min()) / (gray.max() - gray.min()) * (len(symbols) - 1)
-        ).astype('int')
+        symbols = list('!v+#S%$&NM@')
+        symbol_indices = ((gray / 255) * (len(symbols) - 1)).astype('int')
 
         # Gets the width and height of the default font.
         font = ImageFont.load_default(size=30)
@@ -93,7 +91,9 @@ class AsciiArtist:
         # which is the number of symbols (`new_size`) multiplied by the font size.
         out_size = new_size * font_size
 
-        out_size = (COMPRESS_RATIO * out_size).astype('int')
+        # Compresses the image as the spaces between symbols are too large.
+        compress_ratio = 0.6
+        out_size = (compress_ratio * out_size).astype('int')
 
         # Makes sure the height can be divided by 2,
         # which is demanded by FFmpeg when converting images to a video.
@@ -113,8 +113,8 @@ class AsciiArtist:
                 draw.text(
                     (
                         # The spaces between symbols are compressed.
-                        COMPRESS_RATIO * font_size[0] * i,
-                        COMPRESS_RATIO * font_size[1] * j,
+                        compress_ratio * font_size[0] * i,
+                        compress_ratio * font_size[1] * j,
                     ),
                     # * The indices of `numpy.array` is reversed in terms of rows and columns,
                     # * thus `[j, i]`.
