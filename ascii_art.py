@@ -24,7 +24,7 @@ COMPRESS_RATIO = 0.6
 RAW_VIDEO = 'video.mp4'
 OUTPUT_VIDEO = 'ascii_video.mp4'
 
-# * The folder for the raw extract frames.
+# * The folder for the raw extracted frames.
 RAW_IMAGE_FOLDER = 'raw images'
 # * The folder for the converted ascii images.
 ASCII_IMAGE_FOLDER = 'ascii images'
@@ -91,9 +91,8 @@ class AsciiArtist:
         # which is the number of symbols (`new_size`) multiplied by the font size.
         out_size = new_size * font_size
 
-        # Compresses the image as the spaces between symbols are too large.
-        compress_ratio = 0.6
-        out_size = (compress_ratio * out_size).astype('int')
+        # Compresses the output image.
+        out_size = (COMPRESS_RATIO * out_size).astype('int')
 
         # Makes sure the height can be divided by 2,
         # which is demanded by FFmpeg when converting images to a video.
@@ -113,8 +112,8 @@ class AsciiArtist:
                 draw.text(
                     (
                         # The spaces between symbols are compressed.
-                        compress_ratio * font_size[0] * i,
-                        compress_ratio * font_size[1] * j,
+                        COMPRESS_RATIO * font_size[0] * i,
+                        COMPRESS_RATIO * font_size[1] * j,
                     ),
                     # * The indices of `numpy.array` is reversed in terms of rows and columns,
                     # * thus `[j, i]`.
