@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -61,7 +62,7 @@ class AsciiArtist:
         Args:
             image (str): The file name of the image.
         """
-        im = Image.open(f'{RAW_IMAGE_FOLDER}/{image}')
+        im = Image.open(Path(RAW_IMAGE_FOLDER).joinpath(image))
 
         # Downsamples the raw image.
         new_size = np.array(
@@ -102,7 +103,6 @@ class AsciiArtist:
         im_out = Image.new(
             mode='RGB',
             size=tuple(out_size),
-            color='black',
         )
         draw = ImageDraw.Draw(im_out)
 
@@ -121,7 +121,7 @@ class AsciiArtist:
                     fill=tuple(color[j, i]),
                 )
 
-        im_out.save(f'{ASCII_IMAGE_FOLDER}/{image}')
+        im_out.save(Path(ASCII_IMAGE_FOLDER).joinpath(image))
 
     def convert_images_to_video(self, image_folder: str) -> None:
         """Converts the sequence of ascii images to a video.
@@ -146,26 +146,27 @@ class AsciiArtist:
 
 
 def main():
-    path = os.path.dirname(__file__)
+    path = Path(__file__).parent
     os.chdir(path)
 
     # Makes folders for raw images and ascii images.
     for folder in [RAW_IMAGE_FOLDER, ASCII_IMAGE_FOLDER]:
-        if os.path.exists(folder):
+        if Path(folder).exists():
             shutil.rmtree(folder)
 
-        os.makedirs(folder)
+        Path(folder).mkdir()
 
     artist = AsciiArtist()
 
     # Extracts images from the raw video.
     artist.extract_frames(video=RAW_VIDEO, output_folder=RAW_IMAGE_FOLDER)
 
-    images = os.listdir(RAW_IMAGE_FOLDER)
+    images = list(Path(RAW_IMAGE_FOLDER).iterdir())
     # Converts raw images to ascii images with thread pooling.
     with ThreadPoolExecutor(MAX_WORKERS) as executor:
         futures = [
-            executor.submit(artist.convert_to_ascii, image=image) for image in images
+            executor.submit(artist.convert_to_ascii, image=image.name)
+            for image in images
         ]
         for i, future in enumerate(as_completed(futures), start=1):
             try:
